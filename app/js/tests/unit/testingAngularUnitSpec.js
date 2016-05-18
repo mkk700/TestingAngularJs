@@ -8,13 +8,14 @@ describe("Testing AngularJS Test Suit", function() {
 	);
 
 	describe("Testing AngularJS Controller", function() {
-		var scope, ctrl, httpBackend; 
+		var scope, ctrl, httpBackend, timeout; 
 
 		beforeEach(
-			inject( function( $controller, $rootScope , $httpBackend) { // used to inject angular components
+			inject( function( $controller, $rootScope , $httpBackend, $timeout) { // used to inject angular components
 				scope = $rootScope.$new(); // create a new scope
 				ctrl = $controller('testingAngularCtrl', {$scope:scope});
 				httpBackend = $httpBackend;
+				timeout = $timeout;
 			})
 		);
 		
@@ -80,16 +81,19 @@ describe("Testing AngularJS Test Suit", function() {
 		});
 
 		it('should update the weather for a specific destinations',function() {
+			// some input data to make a call with 
 			scope.destination = {
 				city: "Melbourne",
 				country: "Australia"
 			};
-
+			// pretend to make an api call
 			httpBackend.expectGET("http://api.openweathermap.org/data/2.5/weather?q=" + scope.destination.city + "&appid=" + scope.apiKey)
-			.respond({
-				weather: [{ main: 'Rain', detial: 'Light Rain'}],
-				main: {temp : 288}
-			});
+			.respond(
+				{ // response will return a response object
+					weather: [{ main: 'Rain', detial: 'Light Rain'}],
+					main: {temp : 288}
+				}
+			);
 
 			scope.getWeather( scope.destination );
 			httpBackend.flush(); // tells angular to respond to all pending requests
@@ -98,9 +102,84 @@ describe("Testing AngularJS Test Suit", function() {
 			expect(scope.destination.weather.temp).toBe(15);
 		});
 
+		it('should remove error message after a fix period of time', function() {
+			scope.message = "Error";
+			expect(scope.message).toBe("Error");
+
+			scope.$apply(); // tell angular to check for any changes and fire off the digest cycle
+			timeout.flush(); // flush all pending timeout
+			expect(scope.message).toBeNull();
+		});
+
 	});
 
-	
+	describe("Testing AngularJS Filter" , function() {
+
+		it('should return only warm destinations', inject(function($filter) {
+			var warmest = $filter('warmestDestinations');
+
+			var destinations = [
+				{	
+					city: "Bejing",
+					country: "China",
+					weather: {
+						temp: 21
+					}
+				},
+				{
+					city: "Moscow",
+					country: "Russia"
+				},
+				{
+					city: "Mexico City",
+					country: "Mexico",
+					weather: {
+						temp: 12
+					}
+				},
+				{
+					city: "Lima",
+					country: "Peru",
+					weather: {
+						temp: 15
+					}
+				}
+			];
+
+			expect(destinations.length).toBe(4);
+
+			var warmDestinations = warmest(destinations,15);
+
+			expect(warmDestinations.length).toBe(2);
+			expect(warmDestinations[0].city).toBe("Bejing");
+			expect(warmDestinations[1].city).toBe("Lima");
+		}));
+
+	});
+
+	describe("Testing Custom temp service", function() {
+		var tempService;
+		var calculator;
+		// beforeEach( 
+		// 	inject( function(_tempService_ ) {
+		// 		tempService = _tempService_;
+		// 	})
+		// ); 
+		beforeEach(
+			inject( function(  TempService, Calculator ) { // used to inject angular components
+				tempService = TempService;
+				calculator = Calculator;  
+			})
+		); 
+ 
+		it( "wtf", function() {
+			console.log("###intest###"); 
+			console.log( tempService.test(10) );
+			console.log(calculator.square( 10 ));
+			console.log(calculator.say( 10 ));
+		});
+		
+	});
 
 });
 

@@ -2,7 +2,7 @@
  
 var testingAngularApp = angular.module('testingAngularApp', [] );
 
-testingAngularApp.controller('testingAngularCtrl', function($rootScope, $scope, $http) {
+testingAngularApp.controller('testingAngularCtrl', function($rootScope, $scope, $timeout, $http, TempService) {
 	$scope.title = "Testing Angular Applications";
 
 	$scope.destinations = [];
@@ -37,17 +37,63 @@ testingAngularApp.controller('testingAngularCtrl', function($rootScope, $scope, 
 					destination.weather = {};
 					destination.weather.main = response.data.weather[0].main;
 					destination.weather.temp = $scope.convertKelvinToCelsius(response.data.main.temp);
+				} else {
+					$scope.message = "City not found";
 				}
 			}, 
 			function errorCallback( error ) {
-				console.log(error);
+				$scope.message = "Server Error";
 			}
 		);
 	};
 
 	$scope.convertKelvinToCelsius = function( temp ) {
+		return TempService.convertKelvinToCelsius(temp);
+	};
+
+	// do something when the message changes
+	$scope.messageWatcher = $scope.$watch('message', function() {
+		if( $scope.message ){
+			$timeout( function(){
+				$scope.message = null;
+			},3000);
+		}
+	} ); 
+});  
+
+testingAngularApp.filter('warmestDestinations', function() {
+	return function( destinations, minimumTemp){
+		var wamDestinations = [];
+
+		angular.forEach( destinations, function(destination) {
+			if( destination.weather && destination.weather.temp && destination.weather.temp >= minimumTemp) {
+				wamDestinations.push( destination );
+			}
+		});
+		return wamDestinations;	
+	};
+});
+
+testingAngularApp.factory('TempService', function(){
+
+	var convertKelvinToCelsius = function( temp ) {
 		return Math.round(temp - 273);
 	};
 
+	var test = function(something){
+		console.log( "my1" + something);
+	};
+
+	return {	
+		convertKelvinToCelsius : convertKelvinToCelsius,
+		test :test
+	};  
 }); 
+
+testingAngularApp.factory('Calculator', function() {
+	this.square = function (a) { return a*a; }; 
+	this.say    = function (z) { return("i am saying: " + z); };
+	return this;
+}); 
+
 
