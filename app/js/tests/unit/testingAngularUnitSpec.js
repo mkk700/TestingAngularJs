@@ -181,5 +181,31 @@ describe("Testing AngularJS Test Suit", function() {
 		
 	});
 
+	describe('testing angularJs directive', function() {
+
+		var scope, template;
+
+		beforeEach( inject( function($compile, $rootScope) {
+			scope = $rootScope.$new();
+
+			scope.destination = {
+				city: "tokyo",
+				country: "Japan"
+			};
+
+			scope.apiKey = "xyz";
+
+			var element = angular.element(
+				'<div destination-directive destination="destination" api-key="apiKey" on-remove="remove()"></div>';
+				);
+
+			// tell angular to compute the directive using the scope we created
+			template = $compile(element)(scope); 
+			scope.$digest();
+			
+		}));
+
+	});
+
 });
 

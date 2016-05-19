@@ -45,6 +45,12 @@ module.exports = function(config) {
         dir: 'coverage/'
     },
 
+    // coverageReporter: {
+    //   type : 'text-summary',
+    //   dir : 'coverage/',
+    //   file : 'coverage.txt'
+    // },
+
     // web server port
     port: 9876,
 

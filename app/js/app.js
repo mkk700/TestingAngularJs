@@ -75,7 +75,7 @@ testingAngularApp.filter('warmestDestinations', function() {
 });
 
 testingAngularApp.factory('TempService', function(){
-
+ 
 	var convertKelvinToCelsius = function( temp ) {
 		return Math.round(temp - 273);
 	};
@@ -87,7 +87,7 @@ testingAngularApp.factory('TempService', function(){
 	return {	
 		convertKelvinToCelsius : convertKelvinToCelsius,
 		test :test
-	};  
+	};   
 }); 
 
 testingAngularApp.factory('Calculator', function() {
